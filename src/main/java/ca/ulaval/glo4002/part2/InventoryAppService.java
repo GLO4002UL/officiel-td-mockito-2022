@@ -2,6 +2,7 @@ package ca.ulaval.glo4002.part2;
 
 import java.util.List;
 
+// Do not change this class
 public class InventoryAppService {
     private final ProductFactory productFactory;
     private final ProductRepository productRepository;
