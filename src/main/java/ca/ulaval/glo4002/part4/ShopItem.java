@@ -12,6 +12,6 @@ public class ShopItem {
             throw new TooManyItemsExceptions();
         }
 
-        return (this.unitPrice * quantity) * Configuration.get().getHolidayDiscount();
+        return (this.unitPrice * quantity) * (1 - Configuration.get().getHolidayDiscount());
     }
 }
