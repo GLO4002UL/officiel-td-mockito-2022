@@ -10,12 +10,14 @@ class ShopItemTest {
     private static final double UNIT_PRICE = 10;
     private static final int TOO_MANY_ITEMS = 5;
     private static final int A_VALID_QUANTITY = 2;
+    private static final int MAXIMUM_QUANTITY = 3;
     private static final double DISCOUNT_PERCENTAGE = 0.25;
 
     private ShopItem item;
 
     @BeforeEach
     void before() {
+        Configuration.setForTests(new Configuration(DISCOUNT_PERCENTAGE, MAXIMUM_QUANTITY));
         item = new ShopItem(UNIT_PRICE);
     }
 

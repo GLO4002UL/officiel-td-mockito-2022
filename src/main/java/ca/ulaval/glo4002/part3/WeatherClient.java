@@ -9,14 +9,7 @@ public class WeatherClient {
     private static final String SERVICE_URL = "http://my-weather-service.com/city/weather";
 
     public Weather fetchWeather() {
-        String message;
-        try (Scanner scanner = new Scanner(new URL(SERVICE_URL).openStream(), StandardCharsets.UTF_8))
-        {
-            scanner.useDelimiter("\\A");
-            message = scanner.hasNext() ? scanner.next() : "";
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String message = getWeatherMessage();
 
         if (message == null || message.length() == 0) {
             throw new WeatherUnavailableException();
@@ -29,5 +22,18 @@ public class WeatherClient {
                 Integer.parseInt(messageParts[1]),
                 Integer.parseInt(messageParts[2])
         );
+    }
+
+    protected String getWeatherMessage() {
+        String message;
+        try (Scanner scanner = new Scanner(new URL(SERVICE_URL).openStream(), StandardCharsets.UTF_8))
+        {
+            scanner.useDelimiter("\\A");
+            message = scanner.hasNext() ? scanner.next() : "";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return message;
     }
 }

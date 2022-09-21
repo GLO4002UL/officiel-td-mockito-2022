@@ -1,11 +1,22 @@
 package ca.ulaval.glo4002.part2;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class InventoryAppServiceTest {
     private static final String A_PRODUCT_NAME = "laptop";
@@ -24,47 +35,55 @@ class InventoryAppServiceTest {
 
     @Test
     void whenSearchingProducts_thenSearchesInTheStorageByName() {
-        // given: the repository will have to at least return an empty list to make this work.
+        givenAListOfItemsExists();
 
         service.searchProducts(A_PRODUCT_NAME);
 
-        // assert that the repository is called properly
+        verify(repository).findByName(A_PRODUCT_NAME);
     }
 
     @Test
     void givenManyProductsWithTheName_whenSearchingForProducts_thenOnlyReturnsTheOnesInStock() {
-        // given: some products with quantity = 0, and some > 0
+        Product productInStock = givenProduct(2);
+        Product productNotInStock = givenProduct(0);
+        givenAListOfItemsExists(List.of(productInStock, productNotInStock));
 
         List<Product> products = service.searchProducts(A_PRODUCT_NAME);
 
-        // assert only contains products in stock
+        assertEquals(1, products.size());
+        assertEquals(productInStock, products.get(0));
     }
 
     @Test
     void whenAddingProduct_thenCreatesItWithNameAndQuantity() {
-        // given: will need to return a product from the factory here in order not to crash. Why?
+        Product newProduct = givenProduct();
+        willReturn(newProduct).given(factory).create(anyString(), anyInt());
 
         service.addProduct(A_PRODUCT_NAME, A_QUANTITY);
 
-        // assert created (factory)
+        verify(factory).create(A_PRODUCT_NAME, A_QUANTITY);
     }
 
     @Test
     void givenItemCanBeSold_whenAddingProduct_thenSavesIt() {
-        // given: created product can be sold
+        Product newProduct = givenProduct();
+        willReturn(true).given(newProduct).canBeSold();
+        willReturn(newProduct).given(factory).create(anyString(), anyInt());
 
         service.addProduct(A_PRODUCT_NAME, A_QUANTITY);
 
-        // assert saved
+        verify(repository).insert(newProduct);
     }
 
     @Test
     void givenAnItemThatCannotBeSold_whenAddingProduct_thenDoesNotSaveIt() {
-        // given: a product that cannot be sold
+        Product newProduct = givenProduct();
+        willReturn(false).given(newProduct).canBeSold();
+        willReturn(newProduct).given(factory).create(anyString(), anyInt());
 
         service.addProduct(A_PRODUCT_NAME, A_QUANTITY);
 
-        // assert NOT saved
+        verify(repository, never()).insert(any());
     }
 
     @Test
@@ -73,7 +92,28 @@ class InventoryAppServiceTest {
 
         service.updateQuantity(A_PRODUCT_NAME, newQuantity);
 
-        // assert repo.updateQuantity was called with the right object.
+        ArgumentCaptor<UpdateQuantityRequest> captor = ArgumentCaptor.forClass(UpdateQuantityRequest.class);
+        verify(repository).updateQuantity(captor.capture());
+        assertEquals(A_PRODUCT_NAME, captor.getValue().name());
+        assertEquals(newQuantity, captor.getValue().quantity());
     }
 
+    private void givenAListOfItemsExists() {
+        givenAListOfItemsExists(new LinkedList<>());
+    }
+
+    private void givenAListOfItemsExists(List<Product> products) {
+        willReturn(products).given(repository).findByName(anyString());
+    }
+
+    private Product givenProduct() {
+        return givenProduct(A_QUANTITY);
+    }
+
+    private Product givenProduct(int quantity) {
+        Product product = mock(Product.class);
+        willReturn(quantity).given(product).quantity();
+
+        return product;
+    }
 }

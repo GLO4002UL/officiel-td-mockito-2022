@@ -16,10 +16,15 @@ public class Configuration {
         return instance;
     }
 
+    static void setForTests(Configuration configuration) {
+        instance = configuration;
+    }
+
     private final double holidayDiscount;
+
     private final int maximumItems;
 
-    private Configuration(double holidayDiscount, int maximumItems) {
+    Configuration(double holidayDiscount, int maximumItems) {
         this.holidayDiscount = holidayDiscount;
         this.maximumItems = maximumItems;
     }
