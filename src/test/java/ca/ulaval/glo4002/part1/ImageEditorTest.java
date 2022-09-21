@@ -8,13 +8,11 @@ class ImageEditorTest {
 
     private ImageEditor imageEditor;
 
-    @BeforeEach
-    void before() {
-        imageEditor = new ImageEditor(null /* new ResourcesImageLoader() ?? */);
-    }
 
     @Test
     void whenLoadingAnImage_thenLoadsImageFromTheRightDirectory() {
+        imageEditor = new ImageEditor(null /* new ResourcesImageLoader() ?? */);
+
         imageEditor.renderImageByName(AN_IMAGE);
 
         // ???, sans mockito
@@ -22,6 +20,8 @@ class ImageEditorTest {
 
     @Test
     void whenLoadingAnImage_thenLoadsImageFromTheRightDirectory_withMockito() {
+        imageEditor = new ImageEditor(null /* new ResourcesImageLoader() ?? */);
+
         imageEditor.renderImageByName(AN_IMAGE);
 
         // verify(...)
